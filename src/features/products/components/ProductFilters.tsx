@@ -1,0 +1,114 @@
+'use client';
+
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import { useCallback } from 'react';
+import { Search, X } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import {
+    Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from '@/components/ui/select';
+
+export function ProductFilters() {
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+
+    const search = searchParams.get('search') ?? '';
+    const status = searchParams.get('status') ?? 'all';
+    const featured = searchParams.get('featured') ?? 'all';
+    const newArrival = searchParams.get('newArrival') ?? 'all';
+    const popular = searchParams.get('popular') ?? 'all';
+
+    const createQueryString = useCallback(
+        (params: Record<string, string | null>) => {
+            const newParams = new URLSearchParams(searchParams.toString());
+            Object.entries(params).forEach(([key, value]) => {
+                if (value === null || value === '' || value === 'all') {
+                    newParams.delete(key);
+                } else {
+                    newParams.set(key, value);
+                }
+            });
+            // Reset to page 1 when filters change
+            newParams.delete('page');
+            return newParams.toString();
+        },
+        [searchParams]
+    );
+
+    const updateFilter = (key: string, value: string) => {
+        const qs = createQueryString({ [key]: value });
+        router.push(qs ? `${pathname}?${qs}` : pathname);
+    };
+
+    const clearAll = () => router.push(pathname);
+
+    const hasFilters = search !== '' || status !== 'all' || featured !== 'all'
+        || newArrival !== 'all' || popular !== 'all';
+
+    return (
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+            <div className="relative flex-1 sm:max-w-xs">
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                    placeholder="Search products..."
+                    defaultValue={search}
+                    onChange={(e) => updateFilter('search', e.target.value)}
+                    className="pl-9"
+                />
+            </div>
+
+            <Select value={status} onValueChange={(v) => updateFilter('status', v)}>
+                <SelectTrigger className="w-full sm:w-[140px]">
+                    <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">All statuses</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Archived</SelectItem>
+                </SelectContent>
+            </Select>
+
+            <Select value={featured} onValueChange={(v) => updateFilter('featured', v)}>
+                <SelectTrigger className="w-full sm:w-[140px]">
+                    <SelectValue placeholder="Featured" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">All</SelectItem>
+                    <SelectItem value="true">Featured</SelectItem>
+                    <SelectItem value="false">Not featured</SelectItem>
+                </SelectContent>
+            </Select>
+
+            <Select value={newArrival} onValueChange={(v) => updateFilter('newArrival', v)}>
+                <SelectTrigger className="w-full sm:w-[140px]">
+                    <SelectValue placeholder="New arrival" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">All</SelectItem>
+                    <SelectItem value="true">New arrivals</SelectItem>
+                    <SelectItem value="false">Regular</SelectItem>
+                </SelectContent>
+            </Select>
+
+            <Select value={popular} onValueChange={(v) => updateFilter('popular', v)}>
+                <SelectTrigger className="w-full sm:w-[140px]">
+                    <SelectValue placeholder="Popular" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">All</SelectItem>
+                    <SelectItem value="true">Popular</SelectItem>
+                    <SelectItem value="false">Not popular</SelectItem>
+                </SelectContent>
+            </Select>
+
+            {hasFilters && (
+                <Button variant="ghost" size="sm" onClick={clearAll} className="h-9">
+                    <X className="mr-1.5 h-3.5 w-3.5" />
+                    Clear
+                </Button>
+            )}
+        </div>
+    );
+}
