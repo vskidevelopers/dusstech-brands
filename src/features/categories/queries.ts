@@ -84,3 +84,23 @@ export async function isCategorySlugTaken(
   const { data } = await query;
   return (data?.length ?? 0) > 0;
 }
+
+export async function getFeaturedCategories(
+  limit: number = 6,
+): Promise<Category[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("categories")
+    .select("*")
+    .eq("featured", true)
+    .eq("active", true)
+    .is("deleted_at", null)
+    .order("sort_order", { ascending: true })
+    .limit(limit);
+
+  if (error) {
+    console.error("[getFeaturedCategories]", error);
+    return [];
+  }
+  return (data as Category[]) ?? [];
+}

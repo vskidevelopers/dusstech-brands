@@ -27,13 +27,18 @@ const ROOT_FOLDER = "dusstech-brands";
 export async function generateUploadSignatureAction(
   folder: string,
   publicId?: string,
-): Promise<UploadSignature> {
+): Promise<UploadSignature & { folder: string }> {
+  // <-- Added & { folder: string }
   await requireAuth();
 
   const timestamp = Math.round(new Date().getTime() / 1000);
+
+  // 1. Define the exact folder being signed
+  const finalFolder = `${ROOT_FOLDER}/${folder}`;
+
   const paramsToSign = {
     timestamp,
-    folder: `${ROOT_FOLDER}/${folder}`,
+    folder: finalFolder, // <-- Sign this exact string
     ...(publicId && { public_id: publicId }),
   };
 
@@ -47,6 +52,7 @@ export async function generateUploadSignatureAction(
     timestamp,
     apiKey: process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY!,
     cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME!,
+    folder: finalFolder,
   };
 }
 

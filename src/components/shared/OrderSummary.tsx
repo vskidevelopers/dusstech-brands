@@ -1,0 +1,84 @@
+"use client";
+
+import { useCartStore } from "@/features/cart/store";
+import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
+import { ShoppingCart, MessageCircle } from "lucide-react";
+import Link from "next/link";
+
+interface OrderSummaryProps {
+    onCheckout?: () => void;
+    showCheckoutButton?: boolean;
+}
+
+export function OrderSummary({ onCheckout, showCheckoutButton = true }: OrderSummaryProps) {
+    const items = useCartStore((state) => state.items);
+    const subtotal = useCartStore((state) => state.getSubtotal());
+    const totalItems = useCartStore((state) => state.getTotalItems());
+
+    const products = items.filter((item) => item.type === "product");
+    const services = items.filter((item) => item.type === "service");
+
+    return (
+        <div className="rounded-lg border bg-card p-6 space-y-4">
+            <h3 className="text-lg font-semibold">Order Summary</h3>
+
+            <div className="space-y-3">
+                {products.length > 0 && (
+                    <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">
+                            Products ({products.reduce((sum, p) => sum + p.quantity, 0)})
+                        </span>
+                        <span className="font-medium">
+                            KES {products.reduce((sum, p) => sum + p.price * p.quantity, 0).toLocaleString()}
+                        </span>
+                    </div>
+                )}
+
+                {services.length > 0 && (
+                    <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">
+                            Services ({services.reduce((sum, s) => sum + s.quantity, 0)})
+                        </span>
+                        <span className="font-medium">
+                            KES {services.reduce((sum, s) => sum + s.price * s.quantity, 0).toLocaleString()}
+                        </span>
+                    </div>
+                )}
+
+                <Separator />
+
+                <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Subtotal</span>
+                    <span className="font-medium">KES {subtotal.toLocaleString()}</span>
+                </div>
+
+                <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Delivery</span>
+                    <span className="text-xs text-muted-foreground italic">
+                        Calculated after confirmation
+                    </span>
+                </div>
+
+                <Separator />
+
+                <div className="flex justify-between text-lg font-bold">
+                    <span>Grand Total</span>
+                    <span className="text-primary">KES {subtotal.toLocaleString()}</span>
+                </div>
+            </div>
+
+            {showCheckoutButton && (
+                <div className="space-y-2 pt-2">
+                    <Button className="w-full" size="lg" onClick={onCheckout}>
+                        <ShoppingCart className="h-4 w-4 mr-2" />
+                        Proceed to Checkout
+                    </Button>
+                    <Button variant="outline" className="w-full" asChild>
+                        <Link href="/shop">Continue Shopping</Link>
+                    </Button>
+                </div>
+            )}
+        </div>
+    );
+}

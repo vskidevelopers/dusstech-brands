@@ -1,8 +1,8 @@
 import type { Tables } from "@/types/database";
 
-export type Service = Tables<"services">["Row"];
-export type ServiceInsert = Tables<"services">["Insert"];
-export type ServiceUpdate = Tables<"services">["Update"];
+export type Service = Tables<"services">;
+export type ServiceInsert = Tables<"services">;
+export type ServiceUpdate = Tables<"services">;
 
 export type PricingType = "fixed" | "starting_from" | "custom_quote";
 export type ServiceStatus = "active" | "inactive";

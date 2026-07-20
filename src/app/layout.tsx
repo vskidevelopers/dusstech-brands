@@ -1,34 +1,20 @@
+import "./globals.css"; // ⚠️ THIS LINE MUST BE HERE (adjust path if your css is elsewhere)
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import { Providers } from "@/providers";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
-  title: "Dusstech Brands | Own Your Brand",
-  description: "Premium branding, printing, and signage platform in Nairobi, Kenya.",
+  title: "Dusstech",
+  description: "Dusstech Platform",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
-      >
-        <Providers>{children}</Providers>
+    <html lang="en">
+      <body className="antialiased bg-white text-black"> {/* Ensure body has basic classes */}
+        {children}
       </body>
     </html>
   );

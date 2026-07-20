@@ -45,6 +45,16 @@ export function ServiceForm({
     const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
     const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
 
+    const getInitialPricingType = (): ServiceFormData['pricing_type'] => {
+        if (initialData?.pricing_type === 'fixed'
+            || initialData?.pricing_type === 'starting_from'
+            || initialData?.pricing_type === 'custom_quote') {
+            return initialData.pricing_type;
+        }
+
+        return 'starting_from';
+    };
+
     const {
         register, handleSubmit, control, watch, setValue, formState: { errors },
     } = useForm<ServiceFormData>({
@@ -57,7 +67,7 @@ export function ServiceForm({
             category_id: initialData?.category_id ?? null,
             collection_ids: initialCollectionIds,
             starting_price: initialData?.starting_price ?? 0,
-            pricing_type: initialData?.pricing_type ?? 'starting_from',
+            pricing_type: getInitialPricingType(),
             featured: initialData?.featured ?? false,
             active: initialData?.active ?? true,
             featured_image: initialData?.featured_image ?? '',
@@ -221,12 +231,19 @@ export function ServiceForm({
                                         <MediaPicker
                                             open={isMediaPickerOpen}
                                             onOpenChange={setIsMediaPickerOpen}
-                                            folder="products" // Dynamic folder!
+                                            folder="services"
                                             multiple={false}
                                             onSelect={(media) => {
+                                                console.log("🔥 STEP 8: MediaPicker onSelect triggered. Raw media payload:", media);
+
                                                 const selectedMedia = Array.isArray(media) ? media[0] : media;
-                                                if (selectedMedia) {
+
+                                                if (selectedMedia && selectedMedia.secure_url) {
+                                                    console.log("✅ STEP 8 COMPLETE: Setting form 'featured_image' to:", selectedMedia.secure_url);
                                                     field.onChange(selectedMedia.secure_url);
+                                                    toast.success("Image attached to form!");
+                                                } else {
+                                                    console.error("❌ STEP 8 FAILED: selectedMedia or secure_url is missing!", selectedMedia);
                                                 }
                                             }}
                                         />

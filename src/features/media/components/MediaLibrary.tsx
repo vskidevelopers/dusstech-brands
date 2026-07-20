@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { getMediaListAction } from '../actions';
 import type { MediaItem, MediaFilters } from '../types';
 import { Input } from '@/components/ui/input';
@@ -16,33 +17,38 @@ interface MediaLibraryProps {
 }
 
 export function MediaLibrary({ folder, selectedIds, onSelect, multiple = false }: MediaLibraryProps) {
-    const [media, setMedia] = useState<MediaItem[]>([]);
-    const [loading, setLoading] = useState(true);
     const [filters, setFilters] = useState<MediaFilters>({ folder, page: 1, pageSize: 24 });
 
-    useEffect(() => {
-        const fetchMedia = async () => {
-            setLoading(true);
-            const result = await getMediaListAction({ ...filters, folder });
-            setMedia(result.data);
-            setLoading(false);
-        };
-        fetchMedia();
-    }, [filters, folder]);
+    console.log("🔥 STEP 6: MediaLibrary rendering. Current filters:", filters);
+
+    const { data: result, isLoading, refetch } = useQuery({
+        queryKey: ['media', folder, filters.search, filters.resourceType],
+        queryFn: async () => {
+            console.log("🔥 STEP 6a: Fetching media from Supabase for folder:", folder);
+            const res = await getMediaListAction({ ...filters, folder });
+            console.log("✅ STEP 6a COMPLETE: Fetched", res.data.length, "items.");
+            return res;
+        },
+    });
+
+    const media = result?.data || [];
+    const loading = isLoading;
 
     if (loading) return <div className="text-center py-10 text-muted-foreground">Loading media...</div>;
     if (media.length === 0) return <div className="text-center py-10 text-muted-foreground">No media found in this folder.</div>;
 
     return (
         <div className="space-y-4">
-            {/* Filters */}
             <div className="flex gap-2">
                 <Input
                     placeholder="Search filename or alt text..."
                     className="max-w-xs"
                     onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value, page: 1 }))}
                 />
-                <Select value={filters.resourceType} onValueChange={(v) => setFilters(prev => ({ ...prev, resourceType: v as MediaFilters['resourceType'] }))}>
+                <Select 
+                    value={filters.resourceType} 
+                    onValueChange={(v) => setFilters(prev => ({ ...prev, resourceType: v as MediaFilters['resourceType'] }))}
+                >
                     <SelectTrigger className="w-[130px]"><SelectValue placeholder="Type" /></SelectTrigger>
                     <SelectContent>
                         <SelectItem value="auto">All</SelectItem>
@@ -52,14 +58,16 @@ export function MediaLibrary({ folder, selectedIds, onSelect, multiple = false }
                 </Select>
             </div>
 
-            {/* Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                 {media.map((item) => {
                     const isSelected = selectedIds.includes(item.id);
                     return (
                         <div
                             key={item.id}
-                            onClick={() => onSelect(item)}
+                            onClick={() => {
+                                console.log("🔥 STEP 7: User clicked media item. ID:", item.id, "URL:", item.secure_url);
+                                onSelect(item);
+                            }}
                             className={cn(
                                 "group relative aspect-square rounded-lg border bg-muted overflow-hidden cursor-pointer transition-all hover:ring-2 hover:ring-primary",
                                 isSelected && "ring-2 ring-primary"

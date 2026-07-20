@@ -1,8 +1,8 @@
 import type { Tables } from "@/types/database";
 
-export type Product = Tables<"products">["Row"];
-export type ProductInsert = Tables<"products">["Insert"];
-export type ProductUpdate = Tables<"products">["Update"];
+export type Product = Tables<"products">;
+export type ProductInsert = Tables<"products">;
+export type ProductUpdate = Tables<"products">;
 
 export type ProductStatus = "active" | "inactive";
 

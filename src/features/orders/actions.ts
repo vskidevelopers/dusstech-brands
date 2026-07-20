@@ -436,3 +436,129 @@ export async function deleteOrderAction(
   revalidatePath("/admin/orders");
   return { success: true };
 }
+
+/**
+ * Dedicated action for anonymous website checkout.
+ * Bypasses requireAuth() and provides safe defaults for admin-only fields.
+ */
+export async function createWebsiteOrderAction(input: {
+  customer_name: string;
+  customer_phone: string;
+  customer_email?: string | null;
+  customer_company?: string | null;
+  delivery_method: "pickup" | "delivery";
+  delivery_location?: string | null;
+  payment_option: "later" | "now";
+  items: {
+    type: "product" | "service";
+    item_id: string;
+    name: string;
+    price: number;
+    quantity: number;
+    subtotal: number;
+  }[];
+}): Promise<OrderActionResult<Order>> {
+  const supabase = await createClient();
+
+  // 1. Map website cart items to the schema your DB expects
+  const orderItems = input.items.map((item) => ({
+    item_type: item.type,
+    reference_id: item.item_id,
+    description: item.name,
+    quantity: item.quantity,
+    unit_price: item.price,
+    discount: 0,
+    line_total: item.subtotal,
+  }));
+
+  // 2. Calculate totals
+  const subtotal = orderItems.reduce((sum, item) => sum + item.line_total, 0);
+  const deliveryFee = 0; // Admin will update this later
+  const grandTotal = subtotal + deliveryFee;
+
+  // 3. Generate order number
+  const { data: orderNumberData, error: orderNumError } = await supabase.rpc(
+    "generate_next_order_number",
+  );
+
+  if (orderNumError || !orderNumberData) {
+    return {
+      success: false,
+      error: `Failed to generate order number: ${orderNumError?.message || "Unknown error"}`,
+    };
+  }
+
+  // 4. Insert order (with safe defaults for website)
+  const { data: order, error: oError } = await supabase
+    .from("orders")
+    .insert({
+      order_number: orderNumberData,
+      source: "website",
+      quotation_id: null,
+      customer_name: input.customer_name,
+      company_name: input.customer_company || null,
+      phone: input.customer_phone,
+      email: input.customer_email || null,
+      delivery_method: input.delivery_method,
+      delivery_location:
+        input.delivery_method === "delivery"
+          ? input.delivery_location || null
+          : null,
+      delivery_fee: deliveryFee,
+      payment_option: input.payment_option,
+      payment_status: "pending",
+      production_status: "new",
+      notes: "Order placed via website checkout.",
+      discount: 0,
+      vat_enabled: false,
+      vat_percentage: 0,
+      subtotal: subtotal,
+      vat_amount: 0,
+      grand_total: grandTotal,
+    })
+    .select()
+    .single();
+
+  if (oError || !order) {
+    return { success: false, error: mapSupabaseError(oError?.message || "") };
+  }
+
+  // 5. Insert items
+  const itemsToInsert = orderItems.map((item, index) => ({
+    order_id: order.id,
+    item_type: item.item_type,
+    reference_id: item.reference_id ?? null,
+    description: item.description,
+    quantity: item.quantity,
+    unit_price: item.unit_price,
+    discount: item.discount,
+    line_total: item.line_total,
+    sort_order: index,
+  }));
+
+  const { error: itemsError } = await supabase
+    .from("order_items")
+    .insert(itemsToInsert);
+
+  if (itemsError) {
+    // Rollback the order if items fail to insert
+    await supabase.from("orders").delete().eq("id", order.id);
+    return { success: false, error: mapSupabaseError(itemsError.message) };
+  }
+
+  // 6. Insert timeline event
+  await supabase.from("order_timeline").insert({
+    order_id: order.id,
+    event: PRODUCTION_STATUS_LABELS["new"],
+  });
+
+  console.log(
+    "[createWebsiteOrderAction] ✅ Order fully created:",
+    order.order_number,
+  );
+
+  // Revalidate admin orders page so it shows up immediately for the admin
+  revalidatePath("/admin/orders");
+
+  return { success: true, data: order };
+}

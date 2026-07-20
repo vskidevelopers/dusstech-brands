@@ -1,8 +1,8 @@
 import type { Tables } from "@/types/database";
 
-export type Category = Tables<"categories">["Row"];
-export type CategoryInsert = Tables<"categories">["Insert"];
-export type CategoryUpdate = Tables<"categories">["Update"];
+export type Category = Tables<"categories">;
+export type CategoryInsert = Tables<"categories">;
+export type CategoryUpdate = Tables<"categories">;
 
 export type CategoryStatus = "active" | "inactive";
 

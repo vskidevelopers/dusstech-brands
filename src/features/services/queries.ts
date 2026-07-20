@@ -122,3 +122,39 @@ export async function getActiveServicesForSelect() {
     starting_price: number | null;
   }[];
 }
+
+// src/features/services/queries.ts
+
+export async function getFeaturedServices() {
+  await requireAuth();
+  const supabase = await createClient();
+
+  try {
+    const { data, error } = await supabase
+      .from("services") // ⚠️ Double-check this matches your DB table name exactly (case-sensitive)
+      .select("*");
+    // .eq('is_featured', true) // Uncomment if you use this filter
+
+    if (error) {
+      console.error("=== [getFeaturedServices] SUPABASE ERROR ===");
+      console.error("Message:", error.message);
+      console.error("Code:", error.code);
+      console.error("Details:", error.details);
+      console.error(
+        "Full Object:",
+        JSON.stringify(error, Object.getOwnPropertyNames(error)),
+      );
+      return [];
+    }
+
+    console.log(
+      `[getFeaturedServices] Success: Found ${data?.length || 0} services`,
+    );
+    return (data as Service[]) ?? [];
+  } catch (err) {
+    // 4. Catch raw JavaScript/Fetch errors that bypass Supabase's error object
+    console.error("=== [getFeaturedServices] CAUGHT EXCEPTION ===");
+    console.error(err);
+    return [];
+  }
+}

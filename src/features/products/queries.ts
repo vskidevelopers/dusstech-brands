@@ -142,3 +142,23 @@ export async function getActiveProductsForSelect() {
   if (error) return [];
   return (data || []) as { id: string; name: string; selling_price: number }[];
 }
+
+export async function getFeaturedProducts(
+  limit: number = 8,
+): Promise<Product[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("products")
+    .select("*")
+    .or("featured.eq.true,popular.eq.true,new_arrival.eq.true")
+    .eq("active", true)
+    .is("deleted_at", null)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error("[getFeaturedProducts]", error);
+    return [];
+  }
+  return (data as Product[]) ?? [];
+}

@@ -1,8 +1,8 @@
 import type { Tables } from "@/types/database";
 
-export type Collection = Tables<"collections">["Row"];
-export type CollectionInsert = Tables<"collections">["Insert"];
-export type CollectionUpdate = Tables<"collections">["Update"];
+export type Collection = Tables<"collections">;
+export type CollectionInsert = Tables<"collections">;
+export type CollectionUpdate = Tables<"collections">;
 
 export type CollectionStatus = "active" | "inactive";
 

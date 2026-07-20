@@ -219,6 +219,21 @@ async function toggleBooleanField(
   return { success: true };
 }
 
+export async function getServicesListAction() {
+  await requireAuth(); // Ensure admin is logged in
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("services")
+    .select(
+      "id, name, slug, starting_price, active, featured, category_id, created_at",
+    )
+    .order("created_at", { ascending: false });
+
+  if (error) throw new Error(error.message);
+  return data || [];
+}
+
 export async function toggleFeaturedAction(id: string, value: boolean) {
   return toggleBooleanField(id, "featured", value);
 }
