@@ -1,13 +1,14 @@
 'use client';
 
 import { useTransition } from 'react';
+import Link from 'next/link'; // ✅ Added Next.js Link
 import {
     DropdownMenu, DropdownMenuContent, DropdownMenuItem,
     DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { LogOut, Settings, User, Loader2 } from 'lucide-react';
+import { LogOut, Settings, User, Loader2, Home } from 'lucide-react'; // ✅ Added Home icon
 import { logoutAction } from '@/actions/auth/logout';
 
 export function NavUser() {
@@ -36,6 +37,15 @@ export function NavUser() {
                     </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
+
+                {/* ✅ NEW: View Website Link */}
+                <DropdownMenuItem asChild>
+                    <Link href="/" className="cursor-pointer w-full">
+                        <Home className="mr-2 h-4 w-4" />
+                        <span>View Website</span>
+                    </Link>
+                </DropdownMenuItem>
+
                 <DropdownMenuItem disabled={isPending}>
                     <User className="mr-2 h-4 w-4" />
                     <span>Profile</span>
@@ -48,7 +58,7 @@ export function NavUser() {
                 <DropdownMenuItem
                     onClick={handleLogout}
                     disabled={isPending}
-                    className="cursor-pointer"
+                    className="cursor-pointer text-red-600 focus:text-red-600" // Optional: makes logout stand out
                 >
                     {isPending ? (
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
