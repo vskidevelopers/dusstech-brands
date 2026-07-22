@@ -18,6 +18,8 @@ import { OrderSummary } from "@/components/shared/OrderSummary";
 import { InputField, TextareaField } from "@/components/shared/FormField";
 import { useCartStore } from "@/features/cart/store";
 import { createWebsiteOrderAction } from "@/features/orders/actions";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 
 const checkoutSchema = z.object({
     full_name: z.string().min(2, "Full name is required"),
@@ -99,10 +101,12 @@ export default function CheckoutPage() {
     }, [items, router]);
 
     const onSubmit = async (data: CheckoutFormData) => {
+        console.log("🔥 [Checkout] 1. Form submitted with data:", data);
         setIsSubmitting(true);
 
         try {
             const orderItems = transformToOrderItems();
+            console.log("🔥 [Checkout] 2. Transformed order items:", orderItems);
 
             // Combine delivery details into a single string for the database
             const deliveryLocation =
@@ -110,18 +114,25 @@ export default function CheckoutPage() {
                     ? [data.county, data.town, data.area].filter(Boolean).join(", ")
                     : null;
 
-            const result = await createWebsiteOrderAction({
+            const payload = {
                 customer_name: data.full_name,
                 customer_phone: data.phone,
                 customer_email: data.email || null,
                 customer_company: data.company || null,
                 delivery_method: data.delivery_method,
                 delivery_location: deliveryLocation,
-                payment_option: "later",
+                payment_option: "pay_later" as const,
                 items: orderItems,
-            });
+            };
+
+            console.log("🔥 [Checkout] 3. Sending payload to server action:", JSON.stringify(payload, null, 2));
+
+            const result = await createWebsiteOrderAction(payload);
+
+            console.log("🔥 [Checkout] 4. Server action result:", result);
 
             if (result.success && result.data) {
+                console.log("✅ [Checkout] Order created successfully!");
                 clearCart();
                 localStorage.removeItem("checkout-form");
                 router.push(`/order-success?order=${result.data.order_number}`);
@@ -129,7 +140,7 @@ export default function CheckoutPage() {
                 throw new Error(result.error || "Failed to create order");
             }
         } catch (error) {
-            console.error("Checkout error:", error);
+            console.error("❌ [Checkout] Error caught:", error);
             toast.error(error instanceof Error ? error.message : "Failed to place order. Please try again.");
         } finally {
             setIsSubmitting(false);
@@ -163,34 +174,60 @@ export default function CheckoutPage() {
                             <Card>
                                 <CardContent className="pt-6 space-y-4">
                                     <h2 className="text-xl font-semibold">Customer Information</h2>
-                                    <InputField
-                                        label="Full Name"
-                                        error={errors.full_name?.message}
-                                        required
-                                        placeholder="John Doe"
-                                        {...register("full_name")}
-                                    />
-                                    <InputField
-                                        label="Phone Number"
-                                        error={errors.phone?.message}
-                                        required
-                                        type="tel"
-                                        placeholder="+254 700 000 000"
-                                        {...register("phone")}
-                                    />
-                                    <InputField
-                                        label="Email"
-                                        error={errors.email?.message}
-                                        type="email"
-                                        placeholder="john@example.com (Optional)"
-                                        {...register("email")}
-                                    />
-                                    <InputField
-                                        label="Company"
-                                        error={errors.company?.message}
-                                        placeholder="Company Name (Optional)"
-                                        {...register("company")}
-                                    />
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="full_name">
+                                            Full Name <span className="text-destructive">*</span>
+                                        </Label>
+                                        <Input
+                                            id="full_name"
+                                            placeholder="John Doe"
+                                            className={errors.full_name && "border-destructive"}
+                                            {...register("full_name")}
+                                        />
+                                        {errors.full_name && (
+                                            <p className="text-xs text-destructive">{errors.full_name.message}</p>
+                                        )}
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="phone">
+                                            Phone Number <span className="text-destructive">*</span>
+                                        </Label>
+                                        <Input
+                                            id="phone"
+                                            type="tel"
+                                            placeholder="+254 700 000 000"
+                                            className={errors.phone && "border-destructive"}
+                                            {...register("phone")}
+                                        />
+                                        {errors.phone && (
+                                            <p className="text-xs text-destructive">{errors.phone.message}</p>
+                                        )}
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="email">Email</Label>
+                                        <Input
+                                            id="email"
+                                            type="email"
+                                            placeholder="john@example.com (Optional)"
+                                            className={errors.email && "border-destructive"}
+                                            {...register("email")}
+                                        />
+                                        {errors.email && (
+                                            <p className="text-xs text-destructive">{errors.email.message}</p>
+                                        )}
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="company">Company</Label>
+                                        <Input
+                                            id="company"
+                                            placeholder="Company Name (Optional)"
+                                            {...register("company")}
+                                        />
+                                    </div>
                                 </CardContent>
                             </Card>
 
@@ -236,30 +273,43 @@ export default function CheckoutPage() {
 
                                     {deliveryMethod === "delivery" && (
                                         <div className="space-y-4 pt-4 animate-in slide-in-from-top-2 duration-300">
-                                            <InputField
-                                                label="County"
-                                                error={errors.county?.message}
-                                                placeholder="e.g., Nairobi"
-                                                {...register("county")}
-                                            />
-                                            <InputField
-                                                label="Town"
-                                                error={errors.town?.message}
-                                                placeholder="e.g., Westlands"
-                                                {...register("town")}
-                                            />
-                                            <InputField
-                                                label="Area / Landmark"
-                                                error={errors.area?.message}
-                                                placeholder="e.g., Near Sarit Centre"
-                                                {...register("area")}
-                                            />
-                                            <TextareaField
-                                                label="Additional Instructions"
-                                                error={errors.instructions?.message}
-                                                placeholder="Any special delivery instructions..."
-                                                {...register("instructions")}
-                                            />
+                                            <div className="space-y-2">
+                                                <Label htmlFor="county">County</Label>
+                                                <Input
+                                                    id="county"
+                                                    placeholder="e.g., Nairobi"
+                                                    {...register("county")}
+                                                />
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <Label htmlFor="town">Town</Label>
+                                                <Input
+                                                    id="town"
+                                                    placeholder="e.g., Westlands"
+                                                    {...register("town")}
+                                                />
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <Label htmlFor="area">Area / Landmark</Label>
+                                                <Input
+                                                    id="area"
+                                                    placeholder="e.g., Near Sarit Centre"
+                                                    {...register("area")}
+                                                />
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <Label htmlFor="instructions">Additional Instructions</Label>
+                                                <Textarea
+                                                    id="instructions"
+                                                    placeholder="Any special delivery instructions..."
+                                                    className={errors.instructions && "border-destructive"}
+                                                    {...register("instructions")}
+                                                />
+                                            </div>
+
                                             <p className="text-sm text-muted-foreground italic flex items-center gap-2">
                                                 <Clock className="h-4 w-4" />
                                                 Delivery fee will be communicated after order confirmation.

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { motion } from 'framer-motion';
@@ -8,6 +9,7 @@ interface FloatingElementProps {
     className?: string;
     duration?: number;
     distance?: number;
+    style?: any;
 }
 
 export function FloatingElement({
@@ -15,6 +17,7 @@ export function FloatingElement({
     className,
     duration = 4,
     distance = 10,
+    style, ...props
 }: FloatingElementProps) {
     return (
         <motion.div
@@ -24,7 +27,9 @@ export function FloatingElement({
                 repeat: Infinity,
                 ease: 'easeInOut',
             }}
-            className={cn(className)}
+            className={cn("relative", className)}
+            style={style}
+            {...props}
         >
             {children}
         </motion.div>

@@ -1,3 +1,4 @@
+'use client'
 import { Image as ImageIcon } from 'lucide-react';
 import { UnderConstructionPage } from '@/components/shared/UnderConstructionPage';
 

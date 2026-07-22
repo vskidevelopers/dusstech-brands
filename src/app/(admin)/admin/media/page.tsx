@@ -1,3 +1,4 @@
+'use client';
 import { Library } from 'lucide-react';
 import { UnderConstructionPage } from '@/components/shared/UnderConstructionPage';
 

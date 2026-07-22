@@ -1,3 +1,6 @@
+"use client";
+
+import * as React from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -26,76 +29,36 @@ export function FormField({ label, error, required, hint, children, className }:
     );
 }
 
-interface InputFieldProps {
-    label: string;
-    error?: string;
-    required?: boolean;
-    hint?: string;
-    type?: string;
-    placeholder?: string;
-    value?: string;
-    onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    disabled?: boolean;
-}
-
-export function InputField({
-    label,
-    error,
-    required,
-    hint,
-    type = "text",
-    placeholder,
-    value,
-    onChange,
-    disabled,
-}: InputFieldProps) {
+// ✅ FIXED: Properly forwards ref for React Hook Form compatibility
+export const InputField = React.forwardRef<
+    HTMLInputElement,
+    React.InputHTMLAttributes<HTMLInputElement> & {
+        label: string;
+        error?: string;
+        hint?: string;
+    }
+>(({ label, error, hint, className, ...props }, ref) => {
     return (
-        <FormField label={label} error={error} required={required} hint={hint}>
-            <Input
-                type={type}
-                placeholder={placeholder}
-                value={value}
-                onChange={onChange}
-                disabled={disabled}
-                className={error && "border-destructive"}
-            />
+        <FormField label={label} error={error} hint={hint} required={props.required}>
+            <Input ref={ref} className={cn(error && "border-destructive", className)} {...props} />
         </FormField>
     );
-}
+});
+InputField.displayName = "InputField";
 
-interface TextareaFieldProps {
-    label: string;
-    error?: string;
-    required?: boolean;
-    hint?: string;
-    placeholder?: string;
-    value?: string;
-    onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
-    rows?: number;
-    disabled?: boolean;
-}
-
-export function TextareaField({
-    label,
-    error,
-    required,
-    hint,
-    placeholder,
-    value,
-    onChange,
-    rows = 3,
-    disabled,
-}: TextareaFieldProps) {
+// ✅ FIXED: Properly forwards ref for React Hook Form compatibility
+export const TextareaField = React.forwardRef<
+    HTMLTextAreaElement,
+    React.TextareaHTMLAttributes<HTMLTextAreaElement> & {
+        label: string;
+        error?: string;
+        hint?: string;
+    }
+>(({ label, error, hint, className, ...props }, ref) => {
     return (
-        <FormField label={label} error={error} required={required} hint={hint}>
-            <Textarea
-                placeholder={placeholder}
-                value={value}
-                onChange={onChange}
-                rows={rows}
-                disabled={disabled}
-                className={error && "border-destructive"}
-            />
+        <FormField label={label} error={error} hint={hint} required={props.required}>
+            <Textarea ref={ref} className={cn(error && "border-destructive", className)} {...props} />
         </FormField>
     );
-}
+});
+TextareaField.displayName = "TextareaField";

@@ -448,7 +448,7 @@ export async function createWebsiteOrderAction(input: {
   customer_company?: string | null;
   delivery_method: "pickup" | "delivery";
   delivery_location?: string | null;
-  payment_option: "later" | "now";
+  payment_option: "pay_later" | "mpesa";
   items: {
     type: "product" | "service";
     item_id: string;

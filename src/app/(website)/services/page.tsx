@@ -115,8 +115,8 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
                                             key={pageNum}
                                             href={`/services?page=${pageNum}`}
                                             className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${pageNum === servicesResult.page
-                                                    ? "bg-primary text-primary-foreground"
-                                                    : "bg-muted hover:bg-muted/80 text-foreground"
+                                                ? "bg-primary text-primary-foreground"
+                                                : "bg-muted hover:bg-muted/80 text-foreground"
                                                 }`}
                                         >
                                             {pageNum}
@@ -139,7 +139,7 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
                         Every project is unique. Start a conversation and let us bring your vision to life.
                     </p>
                     <a
-                        href={getWhatsAppUrl("254700000000", "Hi, I need a custom branding solution.")}
+                        href={getWhatsAppUrl("254722277778", "Hi, I need a custom branding solution.")}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700 transition-colors"

@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { Navbar } from '@/components/website/layout/Navbar';
+import { Navbar } from '@/components/website/layout/Navbar'
 import { MobileNavigation } from '@/components/website/layout/MobileNavigation';
 import { Footer } from '@/components/website/layout/Footer';
 import { AnnouncementBar } from '@/components/website/layout/AnnouncementBar';

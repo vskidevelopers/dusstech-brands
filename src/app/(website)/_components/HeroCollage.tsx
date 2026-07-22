@@ -48,16 +48,16 @@ export function HeroCollage({ images }: HeroCollageProps) {
                         duration={4 + i * 0.5}
                         distance={pos.distance}
                         className={cn('absolute', pos.size)}
-                        // @ts-expect-error - style prop passthrough
                         style={{ top: pos.top, left: pos.left }}
                     >
-                        <div className="group relative h-80 w-full overflow-hidden rounded-3xl border border-border/40 bg-card shadow-xl transition-transform duration-500 hover:scale-105">
+                        {/* ✅ FIX: Changed from 'h-80 w-full' to 'w-full h-full' */}
+                        <div className="group relative w-full h-full overflow-hidden rounded-3xl border border-border/40 bg-card shadow-xl transition-transform duration-500 hover:scale-105">
                             <Image
                                 src={src}
                                 alt={`Dusstech product ${i + 1}`}
                                 fill
                                 className="object-cover"
-
+                                sizes="(max-width: 768px) 160px, 208px"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
                         </div>

@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, createJSONStorage } from "zustand/middleware";
 
 export interface CartProductItem {
   type: "product";
@@ -23,21 +23,6 @@ export interface CartServiceItem {
 
 export type CartItem = CartProductItem | CartServiceItem;
 
-interface CartState {
-  items: CartItem[];
-  addItem: (item: CartItem) => void;
-  removeItem: (id: string, type: "product" | "service") => void;
-  updateQuantity: (
-    id: string,
-    type: "product" | "service",
-    quantity: number,
-  ) => void;
-  clearCart: () => void;
-  getSubtotal: () => number;
-  getTotalItems: () => number;
-  transformToOrderItems: () => OrderItem[];
-}
-
 export interface OrderItem {
   type: "product" | "service";
   item_id: string;
@@ -47,10 +32,32 @@ export interface OrderItem {
   subtotal: number;
 }
 
+interface CartState {
+  items: CartItem[];
+  isDrawerOpen: boolean;
+  lastAddedItem: CartItem | null;
+
+  addItem: (item: CartItem) => void;
+  removeItem: (id: string, type: "product" | "service") => void;
+  updateQuantity: (
+    id: string,
+    type: "product" | "service",
+    quantity: number,
+  ) => void;
+  clearCart: () => void;
+  openDrawer: () => void;
+  closeDrawer: () => void;
+  getSubtotal: () => number;
+  getTotalItems: () => number;
+  transformToOrderItems: () => OrderItem[];
+}
+
 export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
       items: [],
+      isDrawerOpen: false,
+      lastAddedItem: null,
 
       addItem: (item) => {
         set((state) => {
@@ -63,16 +70,23 @@ export const useCartStore = create<CartState>()(
                   i.service_id === (item as CartServiceItem).service_id)),
           );
 
+          let newItems: CartItem[];
+
           if (existingIndex >= 0) {
-            const newItems = [...state.items];
+            newItems = [...state.items];
             newItems[existingIndex] = {
               ...newItems[existingIndex],
               quantity: newItems[existingIndex].quantity + item.quantity,
             };
-            return { items: newItems };
+          } else {
+            newItems = [...state.items, item];
           }
 
-          return { items: [...state.items, item] };
+          return {
+            items: newItems,
+            isDrawerOpen: true, // ✅ Auto-open drawer on add
+            lastAddedItem: item, // ✅ Track what was just added
+          };
         });
       },
 
@@ -111,7 +125,9 @@ export const useCartStore = create<CartState>()(
         }));
       },
 
-      clearCart: () => set({ items: [] }),
+      clearCart: () => set({ items: [], lastAddedItem: null }),
+      openDrawer: () => set({ isDrawerOpen: true }),
+      closeDrawer: () => set({ isDrawerOpen: false }),
 
       getSubtotal: () => {
         return get().items.reduce(
@@ -137,6 +153,45 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name: "dusstech-cart",
+      // ✅ Don't persist drawer state — only persist items
+      partialize: (state) => ({ items: state.items }),
     },
   ),
 );
+
+// ✅ Helper to create cart items
+export function createCartProductItem(product: {
+  id: string;
+  name: string;
+  price: number;
+  compare_at_price: number | null;
+  featured_image: string | null;
+  slug: string;
+}): CartProductItem {
+  return {
+    type: "product",
+    product_id: product.id,
+    name: product.name,
+    price: product.price,
+    compare_at_price: product.compare_at_price,
+    image: product.featured_image,
+    quantity: 1,
+    slug: product.slug,
+  };
+}
+
+export function createCartServiceItem(service: {
+  id: string;
+  name: string;
+  price: number;
+  featured_image: string | null;
+}): CartServiceItem {
+  return {
+    type: "service",
+    service_id: service.id,
+    name: service.name,
+    price: service.price,
+    image: service.featured_image,
+    quantity: 1,
+  };
+}

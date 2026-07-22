@@ -63,7 +63,7 @@ const NAV_ITEMS: (NavItem & { megaMenu?: MegaMenuData })[] = [
                 {
                     title: 'Apparel',
                     items: [
-                        { label: 'T-Shirts', href: '/shop/t-shirts' },
+                        { label: 'T-Sh-shirts', href: '/shop/t-shirts' },
                         { label: 'Hoodies', href: '/shop/hoodies' },
                         { label: 'Caps', href: '/shop/caps' },
                     ],
@@ -100,8 +100,14 @@ export function DesktopNavigation({ variant = 'solid' }: DesktopNavigationProps)
     const pathname = usePathname();
     const [activeMenu, setActiveMenu] = useState<string | null>(null);
 
-    const textColor = variant === 'transparent' ? 'text-white/90 hover:text-white' : 'text-muted-foreground hover:text-foreground';
-    const activeColor = variant === 'transparent' ? 'text-white' : 'text-foreground';
+    // ✅ Fixed: Added drop-shadow for transparent variant
+    const textColor = variant === 'transparent'
+        ? 'text-white/90 hover:text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]'
+        : 'text-muted-foreground hover:text-foreground';
+
+    const activeColor = variant === 'transparent'
+        ? 'text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]'
+        : 'text-foreground';
 
     return (
         <nav className="hidden md:flex items-center gap-1" aria-label="Main navigation">
@@ -119,7 +125,7 @@ export function DesktopNavigation({ variant = 'solid' }: DesktopNavigationProps)
                         <Link
                             href={item.href}
                             className={cn(
-                                'flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                                'flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-200',
                                 isActive ? activeColor : textColor
                             )}
                             aria-haspopup={hasMegaMenu ? 'true' : undefined}
@@ -129,19 +135,19 @@ export function DesktopNavigation({ variant = 'solid' }: DesktopNavigationProps)
                             {hasMegaMenu && (
                                 <ChevronDown
                                     className={cn(
-                                        'h-3.5 w-3.5 transition-transform',
+                                        'h-3.5 w-3.5 transition-transform duration-200',
                                         activeMenu === item.label && 'rotate-180'
                                     )}
                                 />
                             )}
                         </Link>
 
-                        {/* Active indicator */}
+                        {/* ✅ Fixed: Simplified active indicator - no spring animation */}
                         {isActive && (
                             <motion.div
                                 layoutId="desktop-nav-indicator"
-                                className="absolute bottom-0 left-3 right-3 h-0.5 bg-primary rounded-full"
-                                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                                className="absolute -bottom-0.5 left-3 right-3 h-0.5 bg-primary rounded-full"
+                                transition={{ type: 'tween', duration: 0.2, ease: 'easeInOut' }}
                             />
                         )}
 
@@ -152,7 +158,7 @@ export function DesktopNavigation({ variant = 'solid' }: DesktopNavigationProps)
                                     initial={{ opacity: 0, y: 8 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, y: 8 }}
-                                    transition={{ duration: 0.15 }}
+                                    transition={{ duration: 0.15, ease: 'easeInOut' }}
                                     className="absolute left-1/2 top-full z-50 mt-2 w-[600px] -translate-x-1/2"
                                 >
                                     <div className="rounded-2xl border border-border bg-card p-6 shadow-xl">
@@ -167,7 +173,7 @@ export function DesktopNavigation({ variant = 'solid' }: DesktopNavigationProps)
                                                             <li key={subItem.href}>
                                                                 <Link
                                                                     href={subItem.href}
-                                                                    className="block rounded-lg px-2 py-1.5 text-sm text-foreground hover:bg-muted transition-colors"
+                                                                    className="block rounded-lg px-2 py-1.5 text-sm text-foreground hover:bg-muted transition-colors duration-200"
                                                                 >
                                                                     {subItem.label}
                                                                 </Link>

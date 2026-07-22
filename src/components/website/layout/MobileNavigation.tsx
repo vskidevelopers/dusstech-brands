@@ -154,7 +154,7 @@ export function MobileNavigation() {
                             <div className="grid grid-cols-2 gap-2">
                                 <Button variant="outline" size="sm" asChild>
                                     <a
-                                        href="https://wa.me/254700000000"
+                                        href="https://wa.me/254722277778"
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         onClick={closeMobileNav}

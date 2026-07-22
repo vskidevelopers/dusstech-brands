@@ -24,7 +24,7 @@ export function ServiceCard({ service }: ServiceCardProps) {
   };
 
   const whatsappUrl = getWhatsAppUrl(
-    "254700000000",
+    "254722277778",
     getServiceWhatsAppMessage(service.name, service.whatsapp_message)
   );
 

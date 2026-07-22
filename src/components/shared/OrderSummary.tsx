@@ -3,7 +3,7 @@
 import { useCartStore } from "@/features/cart/store";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, MessageCircle } from "lucide-react";
+import { ShoppingCart, Package, Wrench } from "lucide-react";
 import Link from "next/link";
 
 interface OrderSummaryProps {
@@ -23,31 +23,63 @@ export function OrderSummary({ onCheckout, showCheckoutButton = true }: OrderSum
         <div className="rounded-lg border bg-card p-6 space-y-4">
             <h3 className="text-lg font-semibold">Order Summary</h3>
 
-            <div className="space-y-3">
+            {/* Itemized List */}
+            <div className="space-y-4 max-h-80 overflow-y-auto">
+                {/* Products */}
                 {products.length > 0 && (
-                    <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">
-                            Products ({products.reduce((sum, p) => sum + p.quantity, 0)})
-                        </span>
-                        <span className="font-medium">
-                            KES {products.reduce((sum, p) => sum + p.price * p.quantity, 0).toLocaleString()}
-                        </span>
+                    <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                            <Package className="h-4 w-4" />
+                            <span>Products ({products.reduce((sum, p) => sum + p.quantity, 0)})</span>
+                        </div>
+                        <div className="space-y-2 pl-6">
+                            {products.map((product) => (
+                                <div key={product.product_id} className="flex justify-between text-sm">
+                                    <span className="text-foreground truncate flex-1 mr-2">
+                                        {product.name}
+                                        {product.quantity > 1 && (
+                                            <span className="text-muted-foreground ml-1">×{product.quantity}</span>
+                                        )}
+                                    </span>
+                                    <span className="font-medium whitespace-nowrap">
+                                        KES {(product.price * product.quantity).toLocaleString()}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 )}
 
+                {/* Services */}
                 {services.length > 0 && (
-                    <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">
-                            Services ({services.reduce((sum, s) => sum + s.quantity, 0)})
-                        </span>
-                        <span className="font-medium">
-                            KES {services.reduce((sum, s) => sum + s.price * s.quantity, 0).toLocaleString()}
-                        </span>
+                    <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                            <Wrench className="h-4 w-4" />
+                            <span>Services ({services.reduce((sum, s) => sum + s.quantity, 0)})</span>
+                        </div>
+                        <div className="space-y-2 pl-6">
+                            {services.map((service) => (
+                                <div key={service.service_id} className="flex justify-between text-sm">
+                                    <span className="text-foreground truncate flex-1 mr-2">
+                                        {service.name}
+                                        {service.quantity > 1 && (
+                                            <span className="text-muted-foreground ml-1">×{service.quantity}</span>
+                                        )}
+                                    </span>
+                                    <span className="font-medium whitespace-nowrap">
+                                        KES {(service.price * service.quantity).toLocaleString()}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 )}
+            </div>
 
-                <Separator />
+            <Separator />
 
+            {/* Totals */}
+            <div className="space-y-3">
                 <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Subtotal</span>
                     <span className="font-medium">KES {subtotal.toLocaleString()}</span>

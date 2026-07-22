@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { MessageCircle, ShoppingBag, Sparkles } from 'lucide-react';
 import { buttonVariants } from '@/components/website/ui/Button';
@@ -71,13 +72,13 @@ export function ResultScreen({
                 transition={{ duration: 0.4, delay: 0.4 }}
                 className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 pt-6 border-t border-border"
             >
-                <a
+                <Link
                     href="/services"
                     className={cn(buttonVariants({ variant: 'default', size: 'lg' }))}
                 >
                     <Sparkles className="h-4 w-4" />
                     Browse All Services
-                </a>
+                </Link>
                 <a
                     href="/shop"
                     className={cn(buttonVariants({ variant: 'outline', size: 'lg' }))}
@@ -86,7 +87,7 @@ export function ResultScreen({
                     Browse Shop
                 </a>
                 <a
-                    href="https://wa.me/254700000000?text=Hi%20Dusstech!%20I%20just%20used%20BrandFlow%20and%20need%20help."
+                    href="https://wa.me/254722277778?text=Hi%20Dusstech!%20I%20just%20used%20BrandFlow%20and%20need%20help."
                     target="_blank"
                     rel="noopener noreferrer"
                     className={cn(buttonVariants({ variant: 'secondary', size: 'lg' }))}

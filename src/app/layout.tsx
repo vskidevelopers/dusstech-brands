@@ -1,3 +1,4 @@
+import { CartDrawer } from "@/components/shared/CartDrawer";
 import "./globals.css"; // ⚠️ THIS LINE MUST BE HERE (adjust path if your css is elsewhere)
 import type { Metadata } from "next";
 
@@ -15,6 +16,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="antialiased bg-white text-black"> {/* Ensure body has basic classes */}
         {children}
+        <CartDrawer />
       </body>
     </html>
   );

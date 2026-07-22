@@ -237,7 +237,7 @@ function mapProductRow(row: any): PublicProduct {
     description: row.description,
     category_id: row.category_id,
     category_name: row.categories?.name || null,
-    price: row.price,
+    price: row.selling_price ?? row.price ?? 0,
     compare_at_price: row.compare_at_price,
     selling_price: row.selling_price,
     stock: row.stock,
