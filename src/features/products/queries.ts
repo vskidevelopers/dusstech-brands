@@ -1,9 +1,10 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { requireAuth } from "@/lib/supabase/requireAuth";
+
 import { DEFAULT_PAGE_SIZE } from "@/lib/constants";
 import type { Product, ProductFilters, ProductPaginatedResult } from "./types";
+import { getOptionalUser } from "@/lib/supabase/requireAuth";
 
 /**
  * Fetch products with filters, search, sorting, and pagination.
@@ -11,7 +12,7 @@ import type { Product, ProductFilters, ProductPaginatedResult } from "./types";
 export async function getProducts(
   filters: ProductFilters = {},
 ): Promise<ProductPaginatedResult> {
-  await requireAuth();
+  await getOptionalUser();
 
   const supabase = await createClient();
   const {
@@ -83,7 +84,7 @@ export async function getProducts(
  * Fetch a single product by ID.
  */
 export async function getProductById(id: string): Promise<Product | null> {
-  await requireAuth();
+  await getOptionalUser();
 
   const supabase = await createClient();
   const { data, error } = await supabase

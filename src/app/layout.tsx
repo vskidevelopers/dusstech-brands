@@ -1,23 +1,70 @@
-import { CartDrawer } from "@/components/shared/CartDrawer";
-import "./globals.css"; // ⚠️ THIS LINE MUST BE HERE (adjust path if your css is elsewhere)
-import type { Metadata } from "next";
+// app/layout.tsx
+
+import type { Metadata } from 'next';
+import { Suspense } from 'react';
+import './globals.css';
+
+import { Navbar } from '@/components/website/layout/Navbar';
+import { MobileNavigation } from '@/components/website/layout/MobileNavigation';
+import { Footer } from '@/components/website/layout/Footer';
+import { AnnouncementBar } from '@/components/website/layout/AnnouncementBar';
+import { ScrollProgress } from '@/components/website/layout/ScrollProgress';
+import { BackToTop } from '@/components/website/layout/BackToTop';
+import { FloatingWhatsApp } from '@/components/website/layout/FloatingWhatsApp';
+import { CookieBanner } from '@/components/website/layout/CookieBanner';
+import { SearchOverlay } from '@/components/website/layout/SearchOverlay';
+import { CartDrawer } from '@/components/website/layout/CartDrawer';
+
+import { getBusinessSettings } from '@/features/settings/service';
 
 export const metadata: Metadata = {
-  title: "Dusstech",
-  description: "Dusstech Platform",
+    title: {
+        default: 'Your Business Name',
+        template: '%s | Your Business Name',
+    },
+    description: 'Your business description',
 };
 
-export default function RootLayout({
-  children,
+export default async function RootLayout({
+    children,
 }: {
-  children: React.ReactNode;
+    children: React.ReactNode;
 }) {
-  return (
-    <html lang="en">
-      <body className="antialiased bg-white text-black"> {/* Ensure body has basic classes */}
-        {children}
-        <CartDrawer />
-      </body>
-    </html>
-  );
+    const settings = await getBusinessSettings();
+    const whatsappNumber =
+        (settings?.whatsapp_number as string) || '';
+
+    return (
+        <html lang="en" suppressHydrationWarning>
+            <body>
+                <ScrollProgress />
+
+                <AnnouncementBar />
+
+                <Navbar />
+
+                <MobileNavigation />
+
+                <Suspense fallback={null}>
+                    <SearchOverlay />
+                </Suspense>
+
+                <Suspense fallback={null}>
+                    <CartDrawer />
+                </Suspense>
+
+                <main>{children}</main>
+
+                <Footer settings={settings} />
+
+                {whatsappNumber && (
+                    <FloatingWhatsApp phoneNumber={whatsappNumber} />
+                )}
+
+                <BackToTop />
+
+                <CookieBanner />
+            </body>
+        </html>
+    );
 }

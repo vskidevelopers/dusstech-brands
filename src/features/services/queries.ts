@@ -1,7 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { requireAuth } from "@/lib/supabase/requireAuth";
+import { getOptionalUser, requireAuth } from "@/lib/supabase/requireAuth";
 import type { Service, ServiceFilters } from "./types";
 
 /**
@@ -126,7 +126,7 @@ export async function getActiveServicesForSelect() {
 // src/features/services/queries.ts
 
 export async function getFeaturedServices() {
-  await requireAuth();
+  await getOptionalUser();
   const supabase = await createClient();
 
   try {

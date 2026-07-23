@@ -2,17 +2,18 @@ import dynamic from 'next/dynamic';
 import { getFeaturedCategories } from '@/features/categories/queries';
 import { getFeaturedServices } from '@/features/services/queries';
 import { getFeaturedProducts } from '@/features/products/queries';
+import { Hero } from './(website)/_components/Hero';
+import { BrandFlowSection } from './(website)/_components/BrandFlowSection';
+import { PopularCategories } from './(website)/_components/PopularCategories';
+import { FeaturedServices } from './(website)/_components/FeaturedServices';
+import { FeaturedProducts } from './(website)/_components/FeaturedProducts';
+import { WhyChooseDusstech } from './(website)/_components/WhyChooseDusstech';
+import { getBusinessSettings } from '@/features/settings';
 // import { getLatestPortfolio } from '@/features/portfolio/queries';
 // import { getFeaturedTestimonials } from '@/features/testimonials/queries';
-import { getBusinessSettings } from '@/features/settings/service';
+
 
 // Above-the-fold: SSR immediately
-import { Hero } from './_components/Hero';
-import { BrandFlowSection } from './_components/BrandFlowSection';
-import { PopularCategories } from './_components/PopularCategories';
-import { FeaturedServices } from './_components/FeaturedServices';
-import { FeaturedProducts } from './_components/FeaturedProducts';
-import { WhyChooseDusstech } from './_components/WhyChooseDusstech';
 
 // Below-the-fold: lazy load for performance
 // const PortfolioPreview = dynamic(
@@ -26,7 +27,7 @@ import { WhyChooseDusstech } from './_components/WhyChooseDusstech';
 // );
 
 const FinalCTA = dynamic(
-    () => import('./_components/FinalCTA').then((m) => ({ default: m.FinalCTA })),
+    () => import('./(website)/_components/FinalCTA').then((m) => ({ default: m.FinalCTA })),
     { ssr: true }
 );
 

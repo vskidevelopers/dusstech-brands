@@ -56,7 +56,7 @@ export async function getRecentOrdersAction(limit = 5): Promise<OrderRow[]> {
   // ✅ Added 'id' to the select statement
   const { data, error } = await supabase
     .from("orders")
-    .select("id, customer_name, total_amount, created_at")
+    .select("id, customer_name, grand_total, created_at")
     .order("created_at", { ascending: false })
     .limit(limit);
 
@@ -70,7 +70,7 @@ export async function getRecentOrdersAction(limit = 5): Promise<OrderRow[]> {
     customer: order.customer_name || "Unknown Customer",
     status: "processing", // Safe default since column doesn't exist
     date: new Date(order.created_at).toLocaleDateString(),
-    amount: order.total_amount || 0,
+    amount: order.grand_total || 0,
   }));
 }
 
@@ -80,7 +80,7 @@ export async function getRecentQuotesAction(limit = 5): Promise<QuoteRow[]> {
 
   const { data, error } = await supabase
     .from("quotations")
-    .select("id, customer_name, total_amount, created_at, status")
+    .select("id, customer_name, grand_total, created_at, status")
     .order("created_at", { ascending: false })
     .limit(limit);
 
@@ -95,6 +95,6 @@ export async function getRecentQuotesAction(limit = 5): Promise<QuoteRow[]> {
     customer: quote.customer_name || "Unknown Customer",
     status: quote.status || "draft",
     created: new Date(quote.created_at).toLocaleDateString(),
-    total: quote.total_amount || 0,
+    total: quote.grand_total || 0,
   }));
 }
